@@ -36,31 +36,27 @@ export default function Ratios(){
     //when filtered parms clicked
     function handleLink(event){
         const linkVal = event.target.textContent
+        const validator = columnDefs.map(el=>el['field'].indexOf(linkVal));
         setFilterInput("");
+
         if(addClicked){
-            //rowData changes thus the table changes
-            setRowData(prevData => {
-                return prevData.map((el,i) => {
-                    const value = fullData[i][profitKeys[linkVal]]
-                    return {
-                        ...el,
-                        [linkVal]: typeof value === "number"? value.toFixed(2): value,
-                    }
+            //check if the columns have the key already, if not proceed
+            if(!validator.includes(0)){
+                //rowData changes thus the table changes
+                setRowData(prevData => {
+                    return prevData.map((el,i) => {
+                        const value = fullData[i][profitKeys[linkVal]]
+                        return {
+                            ...el,
+                            [linkVal]: typeof value === "number"? value.toFixed(2): value,
+                        }
+                    })
                 })
-            })
-            //column changes thus the table changes
-// ----------------------------------------------------------------------------------------------------------------------------------------
-            setColumnDefs(prevData => {
-                return prevData.map(el => {
-                    if(el['field'] == linkVal){
-                        return [...prevData]
-                    }
-                    if(el['field'] != linkVal){
-                        return [...prevData,  {field: linkVal}]
-                    }
-                })
-                // return [...prevData, {field: linkVal}]
-            })
+                //column changes thus the table changes
+                setColumnDefs(prevData => {
+                    return [...prevData, {field: linkVal}]
+                }) 
+            }
         }
         if(removeClicked){
             //column changes thus the table changes

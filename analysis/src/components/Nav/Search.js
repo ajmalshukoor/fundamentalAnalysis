@@ -15,6 +15,7 @@ export default function Search(){
     //By submitting the api calls and get data and setVal 
     function handleSubmit() {
             setVal(searchInput)
+            // window.location.reload();
             document.querySelector('.search--input').value = "";      
     }
     return(
