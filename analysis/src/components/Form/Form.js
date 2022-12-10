@@ -64,7 +64,6 @@ export default function Form(){
     function handleSubmit(event){
         event.preventDefault()
         
-
     }
     //the fieldset is in the router to avoid error because of the outside routing
     return(

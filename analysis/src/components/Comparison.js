@@ -9,6 +9,15 @@ import 'ag-grid-community/dist/styles/ag-theme-balham-dark.css';
 export default function Ratios(){
     const [fullData, setFullData] = useState([]);
     const [filterInput, setFilterInput] = useState("");
+    const [test, setTest] = useState([]);
+    const colData = [
+        {field: 'Date'},
+        {field: 'Revenue'},
+        {field: 'PAT'},
+        {field: 'PATMargin'},
+        {field: 'EPS'},
+        {field: 'GrossMargin'},
+    ];
     //used this context to get input value from search. Complicated!
     const {val} = useContext(ValueContext);
     //for add param input to show and hide
@@ -16,13 +25,7 @@ export default function Ratios(){
     //for remove param input to show and hide
     const [removeClicked, setRemoveClicked] = useState(false);
     //stores columns for AgGrid
-    const [columnDefs, setColumnDefs] = useState([
-        {field: 'Date'},
-        {field: 'Revenue'},
-        {field: 'EPS'},
-        {field: 'GrossMargin'},
-        {field: 'PATMargin'},
-    ]);
+    const [columnDefs, setColumnDefs] = useState(colData);
     //stores rows for AgGrid
     const [rowData, setRowData] = useState([]);
 
@@ -71,6 +74,11 @@ export default function Ratios(){
         setFilterInput(event.target.value)
     }
 
+    const additionalCol = columnDefs.filter(el => {
+        if(!colData.map(i => i['field']).includes(el['field'])){
+            return el
+        }
+    })
     //calls two apis for both incomestatement and ratios, chained
     useEffect(()=>{
         fetch(`https://fmpcloud.io/api/v3/income-statement/${val}?limit=40&apikey=${API_KEY}`)
@@ -79,20 +87,56 @@ export default function Ratios(){
             fetch(`https://fmpcloud.io/api/v3/ratios/${val}?limit=40&apikey=${API_KEY}`)
             .then(res2 => res2.json())
             .then(data2 => {
-                const reqData = data2.map((el, i) => {
-                    return{
-                        Date: el.date,
-                        Revenue: data1[i].revenue/1000000+" M",
-                        EPS: data1[i].eps.toFixed(2),
-                        GrossMargin: el.grossProfitMargin.toFixed(2),
-                        PATMargin: el.netProfitMargin.toFixed(2),
-                    }
-                })
+                console.log(data2);
+                if(additionalCol.length !==0){
+                    additionalCol.forEach(col => {
+                         data2.forEach((el, i) => {
+                         const value = fullData[i][profitKeys[col['field']]]
+                         setRowData
+                         (prevData =>{
+                                return(
+                                    [...prevData,
+                                    {
+                                        Date: el.date,
+                                        Revenue: (data1[i].revenue/1000000000).toFixed(2)+" B",
+                                        PAT: ((data1[i]).netIncome/1000000000).toFixed(2)+" B",
+                                        EPS: data1[i].eps.toFixed(2),
+                                        GrossMargin: el.grossProfitMargin.toFixed(2),
+                                        PATMargin: el.netProfitMargin.toFixed(2),
+                                        [col['field']]: typeof value === "number"? value.toFixed(2): value,
+                                    }
+                                    ]
+                                )
+                            })
+
+                        })
+                        console.log("req", rowData)
+                    })
+
+                }
+                if(additionalCol.length ===0){
+                    const reqData = data2.map((el, i) => {
+                        return{
+                            Date: el.date,
+                            Revenue: (data1[i].revenue/1000000000).toFixed(2)+" B",
+                            PAT: ((data1[i]).netIncome/1000000000).toFixed(2)+" B",
+                            EPS: data1[i].eps.toFixed(2),
+                            GrossMargin: el.grossProfitMargin.toFixed(2),
+                            PATMargin: el.netProfitMargin.toFixed(2),
+                        }
+                    })
+                    setRowData(reqData);
+                }
                 setFullData(data2);
-                setRowData(reqData);
             })
         });
+    }, [val])
 
+    //change values in the added columns when submit new symbol request
+    useEffect(()=>{
+        //reset to default values in the table columns when new symbol called
+        // setColumnDefs(colData);
+        
     }, [val])
 
     //related to AgGrid

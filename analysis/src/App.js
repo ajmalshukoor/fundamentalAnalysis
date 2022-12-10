@@ -1,83 +1,61 @@
-import React, {useState}from "react";
-import Form from "./components/Nav/Form";
-import Profitability from "./components/Nav/Profitability";
-import Ratios from "./components/Nav/Ratios";
-import Valuation from "./components/Nav/Valuation";
-import NavBar from "./components/Nav/NavBar";
-import Search from "./components/Nav/Search";
+import React, {useState, useEffect} from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { ValueContext } from "./components/Context/Context";
+import { API_KEY } from "./token";
+import Form from "./components/Form/Form";
+import Profitability from "./components/Ratios/Profitability";
+import Valuation from "./components/Ratios/Valuation";
+import Operational from "./components/Ratios/Operational";
+import NavBar from "./components/Nav/NavBar";
+import Leverage from "./components/Ratios/Leverage";
 import "./App.css";
-import { ValueContext } from "./components/Context/ValueContext";
 
 
 export default function App(){
-  const [val, setVal] = useState("RCI")
+  const [val, setVal] = useState("RCI");
+  const [apiData, setApiData] = useState([]);
+  const [callBack, setCallBack] = useState(false);
 
+  useEffect(()=>{
+      fetch(`https://fmpcloud.io/api/v3/income-statement/${val}?limit=40&apikey=${API_KEY}`)
+      .then(res => res.json())
+      .then(data => {
+        fetch(`https://fmpcloud.io/api/v3/ratios/${val}?limit=40&apikey=${API_KEY}`)
+        .then(diffRes => diffRes.json())
+        .then(diffData => {
+          console.log(data)
+          const arr = data.map((el,i) => {
+            return {
+              ...el,
+              ...diffData[i]
+            }
+          })
+          setApiData(arr)
+          setCallBack(true);
+        })
+        });
+        setInterval(setCallBack(false), 1000)
+  }, [val])
+
+  if(callBack) {
   return(
     <Router>
     <div className="App">
+      {/* <ValueContext.Provider value={{val, setVal}}> */}
       <ValueContext.Provider value={{val, setVal}}>
-      <NavBar/>
-
-          <Routes>
-            {/* <Route path="/"  element={<Search/>}/> */}
-            <Route path="/growth" element={<Profitability/>}/>
-            <Route path="/understand" element={<Form/>}/>
-            <Route path="/ratios" element={<Ratios/>}/>
-            <Route path="/valuation" element={<Valuation/>}/>
-          </Routes>
-        </ValueContext.Provider>
+        <NavBar/>
+        <Routes>
+          <Route path="/"  exact element={<Form/>}/>
+          <Route path="/operational"  exact element={<Operational apiData={apiData}/>}/>
+          <Route path="/valuation" element={<Valuation apiData={apiData}/>}/>
+          <Route path="/profitability" element={<Profitability apiData={apiData}/>}/>
+          <Route path="/leverage" element={<Leverage apiData={apiData}/>}/>
+          {/* <Route path="/" element={<Profitability/>}/>
+          <Route path="/valuation" element={<Valuation/>}/> */}
+        </Routes>
+      </ValueContext.Provider>
     </div>
     </Router>
   )
+        }
 }
-
-
-
-// import React, {useState}from "react";
-// import Form from "./components/Nav/Form";
-// import Profitability from "./components/Nav/Profitability";
-// import Ratios from "./components/Nav/Ratios";
-// import Valuation from "./components/Nav/Valuation";
-// import NavBar from "./components/Nav/NavBar";
-// import {Search} from "./components/Nav/Search";
-// import "./App.css";
-// import { ValueContext } from "./components/Context/ValueContext";
-
-
-// export default function App(){
-//   const [val, setVal] = useState("Hello")
-
-//   let component;
-//   switch(window.location.pathname){
-//     case "/":
-//       component =       
-//       (<ValueContext.Provider value={{val, setVal}}>
-//         <Search/>
-//         <Profitability/>
-
-//       </ValueContext.Provider>)
-//       break
-//     case "/understand":
-//       component = <Form/>
-//       break
-//     // case "/growth":
-//     //   component = 
-//     //   (<ValueContext.Provider value={{val, setVal}}>
-//     //   </ValueContext.Provider>)
-//     //   break
-//     case "/ratios":
-//       component = <Ratios/>
-//       break
-//     case "/valuation":
-//       component = <Valuation/>
-//       break
-//   }
-
-//   return(
-//     <div className="App">
-//       <NavBar/>
-//       {component}    
-//     </div>
-//   )
-// }

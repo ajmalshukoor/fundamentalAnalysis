@@ -1,12 +1,11 @@
 import React from  "react";
-import {Link} from "react-router-dom"
 
 export default function Fieldset(props){
     
     //Just a big form
     return(
         <fieldset>
-        <legend>Understand the business</legend>
+        <legend>Overview</legend>
         <div>
         <div className="question">
         <label htmlFor="sectorvalue">{props.formData.sector}</label>
