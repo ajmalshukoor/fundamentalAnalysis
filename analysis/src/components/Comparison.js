@@ -1,8 +1,8 @@
 import React, {useContext, useEffect, useState} from 'react';
 import {AgGridReact} from 'ag-grid-react';
 import {ValueContext} from "../Context/ValueContext"
-import {API_KEY} from "../../token"
-import {profitKeys} from "../../helper";
+import {API_KEY} from "../token"
+import {profitKeys} from "../helper";
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-balham-dark.css';
 
@@ -81,7 +81,7 @@ export default function Ratios(){
     })
     //calls two apis for both incomestatement and ratios, chained
     useEffect(()=>{
-        fetch(`https://fmpcloud.io/api/v3/income-statement/${val}?limit=40&apikey=${API_KEY}`)
+        fetch(`https://fmpcloud.io/api/v3/key-metrics/${val}?limit=40&apikey=${API_KEY}`)
         .then(res1 => res1.json())
         .then(data1 => {
             fetch(`https://fmpcloud.io/api/v3/ratios/${val}?limit=40&apikey=${API_KEY}`)

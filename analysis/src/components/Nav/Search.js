@@ -7,6 +7,8 @@ export default function Search(){
     //used useState in App.js in order to make this change
     const {val, setVal} = useContext(ValueContext);
     const [searchInput, setSearchInput] = useState("");
+    const [symbol, setSymbol] = useState([]);
+    const search = document.querySelector('.search--input');
     
     function handleChange(event) {
         setSearchInput(event.target.value)
@@ -14,14 +16,28 @@ export default function Search(){
 
     //By submitting the api calls and get data and setVal 
     function handleSubmit() {
-            setVal(searchInput)
-            document.querySelector('.search--input').value = "";      
+            setVal(searchInput.toUpperCase())
+            search.value = "";   
     }
+
+    function handleErrorSubmit() {
+            setSearchInput("Invalid Symbol...");
+            search.style.color = "red";      
+    }
+
+    useEffect(()=>{
+        fetch(`https://fmpcloud.io/api/v3/stock/list?apikey=${API_KEY}`)
+        .then(res => res.json())
+        .then(data => {
+            setSymbol(data.map(sy => sy['symbol']))
+        });
+    }, [val])
+
     return(
         <>
         <div className="search content">
             <input type="search" className="search--input" value={searchInput} placeholder="Symbol" onChange={handleChange}/>
-            <span type="submit" className="search--button fa fa-search" onClick={handleSubmit}></span>
+            <span type="submit" className="search--button fa fa-search" onClick={symbol.includes(searchInput.toUpperCase())?handleSubmit:handleErrorSubmit} ></span>
         </div>  
         </>      
     )

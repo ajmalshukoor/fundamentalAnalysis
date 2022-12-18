@@ -15,6 +15,7 @@ export default function Form(){
 
     function handleClick(){
         setFormData(data);
+        console.log(document.querySelectorAll("input").checked)
     }
     // const [localData, setLocalData] = useState(()=>{
     //     //recall data stored in localstorage after refresh
@@ -28,21 +29,6 @@ export default function Form(){
     useEffect(()=>{
         localStorage.setItem('dataKey', JSON.stringify(formData))
     },[formData]);
-
-    useEffect(()=>{
-        const options = {
-            method: 'GET',
-            headers: {
-                'X-RapidAPI-Key': 'c84a7ec3c1msh3fb01b446d658a9p1c3743jsn5f75c3e2b57d',
-                'X-RapidAPI-Host': 'ms-finance.p.rapidapi.com'
-            }
-        };
-        
-        fetch('https://ms-finance.p.rapidapi.com/market/v2/auto-complete?q=tesla', options)
-            .then(response => response.json())
-            .then(response => console.log(response))
-            .catch(err => console.error(err));
-    }, [])
 
     //handle change when input and comment changes
     function handleChange(event){
@@ -63,7 +49,6 @@ export default function Form(){
     }
     function handleSubmit(event){
         event.preventDefault()
-        
     }
     //the fieldset is in the router to avoid error because of the outside routing
     return(

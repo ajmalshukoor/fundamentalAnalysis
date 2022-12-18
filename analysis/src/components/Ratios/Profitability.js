@@ -13,6 +13,7 @@ export default function Profitability(props){
         {field: 'EPS'},
         {field: 'GrossMargin'},
     ];
+
     const reqData = apiData.map((el, i) => {
         return {
             Year: (el.calendarYear),
